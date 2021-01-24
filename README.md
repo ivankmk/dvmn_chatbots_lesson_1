@@ -9,7 +9,7 @@
 ### Installation:
 
 ```
-git clone https://github.com/Sam1808/Devman-chat-bot.git
+git clone https://github.com/ivankmk/dvmn_chatbots_lesson_1
 ```
 - Use environment variables to store sensetive data
 ```
