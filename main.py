@@ -1,7 +1,6 @@
 import requests
 import telegram
 from dotenv import load_dotenv
-from more_itertools import one
 import os
 import time
 
@@ -15,23 +14,35 @@ def send_tg_notification(url):
     tg_token = os.environ.get('TG_TOKEN')
     tg_chat_id = os.environ.get('TG_CHAT_ID')
     token = {'Authorization': os.environ.get('DVMN_TOKEN')}
+    params = ''
     while True:
         try:
-            response = requests.get(url, headers=token, timeout=5)
+            response = requests.get(
+                url,
+                headers=token,
+                params=params,
+                timeout=90
+            )
             response.raise_for_status()
             task_check_result = response.json()
-            task_name = one(task_check_result['new_attempts'])['lesson_title']
-            is_negative = one(task_check_result['new_attempts'])['is_negative']
-            if is_negative:
-                send_message(tg_token,
-                             tg_chat_id,
-                             f"У вас проверили работу '{task_name}'. \
-                               К сожалению нашлись ошибки :-(")
+
+            if task_check_result['status'] == 'timeout':
+                timestamp = task_check_result['timestamp_to_request']
+                params = {'timestamp': timestamp}
             else:
-                send_message(tg_token,
-                             tg_chat_id,
-                             f"У вас проверили работу '{task_name}'. \
-                               Все ок - можно приступать к следующему :-)")
+                lesson_details = task_check_result['new_attempts'][0]
+                task_name = lesson_details['lesson_title']
+                is_negative = lesson_details['is_negative']
+                if is_negative:
+                    send_message(tg_token,
+                                 tg_chat_id,
+                                 f"У вас проверили работу '{task_name}'. \
+                                  К сожалению нашлись ошибки :-(")
+                else:
+                    send_message(tg_token,
+                                 tg_chat_id,
+                                 f"У вас проверили работу '{task_name}'. \
+                                Все ок - можно приступать к следующему :-)")
 
         except requests.exceptions.ReadTimeout:
             continue
