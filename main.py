@@ -54,6 +54,7 @@ def send_tg_notification(url):
 
 
 if __name__ == "__main__":
+    logging.getLogger().setLevel(logging.INFO)
     load_dotenv()
     url = 'https://dvmn.org/api/long_polling/'
     send_tg_notification(url)
