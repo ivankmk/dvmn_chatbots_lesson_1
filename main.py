@@ -1,6 +1,7 @@
 import requests
 import telegram
 from dotenv import load_dotenv
+import logging
 import os
 import time
 
@@ -11,6 +12,7 @@ def send_message(token, chat_id, text):
 
 
 def send_tg_notification(url):
+    logging.info('Bot is running.')
     tg_token = os.environ.get('TG_TOKEN')
     tg_chat_id = os.environ.get('TG_CHAT_ID')
     token = {'Authorization': os.environ.get('DVMN_TOKEN')}
