@@ -5,6 +5,15 @@ import logging
 import os
 import time
 
+logger = logging.getLogger(__name__)
+
+
+class MyLogsHandler(logging.Handler):
+
+    def emit(self, record):
+        log_entry = self.format(record)
+        bot_logger.send_message(chat_id=tg_chat_id, text=log_entry)
+
 
 def send_tg_notification(url, chat_id):
     logger.info('Bot is running.')
@@ -39,7 +48,7 @@ def send_tg_notification(url, chat_id):
                         f"У вас проверили работу '{task_name}'. \
                         Все ок - можно приступать к следующему :-)")
 
-        except requests.exceptions.ReadTimeout as e:
+        except (requests.exceptions.ReadTimeout, telegram.error.TimedOut) as e:
             logger.error(e)
             continue
         except requests.exceptions.ConnectionError:
@@ -51,6 +60,9 @@ def send_tg_notification(url, chat_id):
 
 if __name__ == "__main__":
 
+    logger.setLevel(logging.INFO)
+    logger.addHandler(MyLogsHandler())
+
     load_dotenv()
     tg_token = os.environ.get('TG_TOKEN')
     tg_chat_id = os.environ.get('TG_CHAT_ID')
@@ -59,15 +71,4 @@ if __name__ == "__main__":
 
     url = 'https://dvmn.org/api/long_polling/'
 
-    class MyLogsHandler(logging.Handler):
-
-        def emit(self, record):
-            log_entry = self.format(record)
-            bot_logger.send_message(chat_id=tg_chat_id, text=log_entry)
-
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-    logger.addHandler(MyLogsHandler())
-
     send_tg_notification(url, tg_chat_id)
-
