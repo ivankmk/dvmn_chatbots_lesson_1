@@ -49,7 +49,6 @@ def send_tg_notification(url, chat_id):
                         Все ок - можно приступать к следующему :-)")
 
         except (requests.exceptions.ReadTimeout, telegram.error.TimedOut) as e:
-            logger.error(e)
             continue
         except requests.exceptions.ConnectionError:
             time.sleep(90)
