@@ -34,6 +34,8 @@ def send_tg_notification(url, chat_id):
                 timestamp = task_check_result['timestamp_to_request']
                 params = {'timestamp': timestamp}
             else:
+                params = {
+                    'timestamp': task_check_result['last_attempt_timestamp']}
                 lesson_details = task_check_result['new_attempts'][0]
                 task_name = lesson_details['lesson_title']
                 is_negative = lesson_details['is_negative']
@@ -48,7 +50,7 @@ def send_tg_notification(url, chat_id):
                         f"У вас проверили работу '{task_name}'. \
                         Все ок - можно приступать к следующему :-)")
 
-        except (requests.exceptions.ReadTimeout, telegram.error.TimedOut) as e:
+        except (requests.exceptions.ReadTimeout, telegram.error.TimedOut):
             continue
         except requests.exceptions.ConnectionError:
             time.sleep(90)
